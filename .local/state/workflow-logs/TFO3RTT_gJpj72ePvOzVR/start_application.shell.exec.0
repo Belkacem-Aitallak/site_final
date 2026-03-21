@@ -1,0 +1,6 @@
+
+> rest-express@1.0.0 dev
+> NODE_ENV=development tsx server/index.ts
+
+[1G[0K5:20:59 AM [express] serving on port 5000
+5:21:00 AM [express] Vite ready — app fully started

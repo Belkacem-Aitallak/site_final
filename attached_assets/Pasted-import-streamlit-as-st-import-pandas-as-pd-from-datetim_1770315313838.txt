@@ -1,0 +1,97 @@
+import streamlit as st
+import pandas as pd
+from datetime import datetime
+
+# Configuration de la page
+st.set_page_config(page_title="Pharmacie - Suivi Commandes", layout="wide")
+
+# Initialisation de la base de données (Fichier local pour cet exemple)
+DB_FILE = "orders_db.csv"
+
+def load_data():
+    try:
+        return pd.read_csv(DB_FILE)
+    except FileNotFoundError:
+        return pd.DataFrame(columns=["ID", "Date", "Patient", "Telephone", "Produit", "Statut"])
+
+def save_data(df):
+    df.to_csv(DB_FILE, index=False)
+
+# Chargement des données
+data = load_data()
+
+# --- BARRE LATÉRALE (Navigation) ---
+st.sidebar.title("💊 PharmaLog v1.0")
+menu = st.sidebar.radio("Navigation", ["Ajouter une demande", "Dashboard Admin"])
+
+# --- PAGE 1 : AJOUTER UNE DEMANDE (Pour le comptoir) ---
+if menu == "Ajouter une demande":
+    st.header("📝 Nouvelle demande patient")
+    
+    with st.form("form_order"):
+        patient = st.text_input("Nom du Patient")
+        tel = st.text_input("Numéro de Téléphone")
+        produit = st.text_input("Nom du Produit / Médicament")
+        submitted = st.form_submit_button("Enregistrer la demande")
+        
+        if submitted:
+            if patient and tel and produit:
+                new_id = len(data) + 1
+                new_entry = {
+                    "ID": new_id,
+                    "Date": datetime.now().strftime("%d/%m/%Y %H:%M"),
+                    "Patient": patient,
+                    "Telephone": tel,
+                    "Produit": produit,
+                    "Statut": "À commander"
+                }
+                data = pd.concat([data, pd.DataFrame([new_entry])], ignore_index=True)
+                save_data(data)
+                st.success(f"Demande enregistrée pour {produit} !")
+            else:
+                st.error("Veuillez remplir tous les champs.")
+
+# --- PAGE 2 : DASHBOARD ADMIN (Pour le responsable achats) ---
+elif menu == "Dashboard Admin":
+    st.header("📊 Gestion des commandes et achats")
+    
+    if data.empty:
+        st.info("Aucune commande enregistrée pour le moment.")
+    else:
+        # Filtres rapides
+        statuts = ["Tous", "À commander", "Commandé", "Reçu - À prévenir", "Terminé"]
+        filtre = st.selectbox("Filtrer par statut", statuts)
+        
+        df_display = data if filtre == "Tous" else data[data["Statut"] == filtre]
+        
+        # Affichage du tableau
+        st.dataframe(df_display, use_container_width=True)
+        
+        st.divider()
+        st.subheader("Mettre à jour un statut")
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            order_id = st.number_input("Entrez l'ID de la commande", min_value=1, step=1)
+        with col2:
+            new_status = st.selectbox("Nouveau statut", ["À commander", "Commandé", "Reçu - À prévenir", "Terminé"])
+            
+        if st.button("Mettre à jour"):
+            if order_id in data["ID"].values:
+                data.loc[data["ID"] == order_id, "Statut"] = new_status
+                save_data(data)
+                st.success(f"Commande {order_id} mise à jour en '{new_status}'")
+                st.rerun()
+            else:
+                st.error("ID non trouvé.")
+
+        # Option WhatsApp (Petit bonus)
+        st.divider()
+        st.subheader("📲 Notification Rapide")
+        st.write("Sélectionnez une commande 'Reçu' pour préparer le message.")
+        reçu_list = data[data["Statut"] == "Reçu - À prévenir"]
+        if not reçu_list.empty:
+            for index, row in reçu_list.iterrows():
+                msg = f"Bonjour {row['Patient']}, votre produit {row['Produit']} est disponible à la pharmacie."
+                link = f"https://wa.me/{row['Telephone']}?text={msg.replace(' ', '%20')}"
+                st.markdown(f"👉 **{row['Patient']}** ({row['Produit']}) : [Envoyer WhatsApp]({link})")

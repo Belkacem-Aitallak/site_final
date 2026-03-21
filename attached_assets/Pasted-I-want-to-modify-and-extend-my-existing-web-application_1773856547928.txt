@@ -1,0 +1,314 @@
+I want to modify and extend my existing web application with the following changes.
+
+---
+
+1. BRANDING UPDATE
+
+Replace the name "Pharmalog" everywhere in the project with:
+
+Pharmacie l'Olivier
+
+Update it in:
+
+* the navigation bar
+* the dashboard title
+* page titles
+* metadata
+* login page (if applicable)
+* any branding references in the UI.
+
+Replace the current logo with the new uploaded logo "Pharmacie l'Olivier".
+
+The logo should appear in:
+
+* the navigation bar
+* the dashboard header
+* login page (if applicable)
+
+Adjust the size so it looks clean and centered in the navbar.
+
+Keep the same modern dashboard design.
+
+---
+
+2. CREATE A NEW PAGE: "Préparations"
+
+Add a new page in the navigation menu called:
+
+Préparations
+
+This page will manage pharmaceutical preparations.
+
+Page Title:
+Préparations Pharmaceutiques
+
+Description:
+"This section allows the pharmacy team to manage and track pharmaceutical preparations prepared for patients."
+
+Add a button at the top:
+
+Ajouter une préparation
+
+When clicking this button open a form with the following fields:
+
+* Date
+* Patient Name
+* Preparation Type
+* Description
+* Prepared By (dropdown)
+* Status
+* Notes
+
+Prepared By dropdown users:
+
+Amine
+Kacem
+Nour
+Imene
+Nadira
+Rachid
+Sarah Guiz
+Kais
+Speed
+Maria
+Dallel
+Hassina
+Adem
+Neila
+Djoudjou
+Hayet
+Ludmila
+Nidal
+Oussama
+Yacine
+Zahra
+
+After saving the form, store the preparation and display it in a table.
+
+Table columns:
+
+Date
+Patient Name
+Preparation Type
+Description
+Prepared By
+Status
+Notes
+Actions (edit / delete)
+
+---
+
+3. CREATE A NEW PAGE: "InBody"
+
+Add a page in the navigation menu called:
+
+InBody
+
+This page will manage InBody body composition tests for patients.
+
+---
+
+4. TOP SECTION
+
+At the top of the page add:
+
+Search bar:
+Label: Search patient by ID
+
+Placeholder:
+"Enter patient ID..."
+
+Next to it add a button:
+
+Ajouter un nouveau patient
+
+---
+
+5. PATIENT CREATION
+
+When clicking "Ajouter un nouveau patient", open a form with:
+
+Patient ID
+Patient Name
+Phone Number (optional)
+Email (optional)
+Date of Birth (optional)
+
+Save the patient profile in the database.
+
+---
+
+6. PATIENT LIST
+
+Display a table of patients with the following columns:
+
+Patient ID
+Name
+Subscription
+Remaining Sessions
+Last Test Date
+Actions
+
+Actions should include:
+
+View Patient
+Add Session
+View History
+
+---
+
+7. SUBSCRIPTION SYSTEM
+
+Patients can have subscription packages for InBody sessions.
+
+Available subscription plans:
+
+1 session
+2 sessions
+4 sessions
+8 sessions
+12 sessions
+
+When a patient receives a subscription, store the total number of sessions.
+
+Display:
+
+Remaining Sessions
+
+---
+
+8. ADDING AN INBODY TEST
+
+Inside each patient profile add a button:
+
+Ajouter une séance InBody
+
+When clicked open a form with:
+
+Date of Test
+Operator (dropdown)
+Weight
+Body Fat
+Muscle Mass
+BMI
+Body Water
+Notes
+
+Operator dropdown list:
+
+Amine
+Kacem
+Nour
+Imene
+Nadira
+Rachid
+Sarah Guiz
+Kais
+Speed
+Maria
+Dallel
+Hassina
+Adem
+Neila
+Djoudjou
+Hayet
+Ludmila
+Nidal
+Oussama
+Yacine
+Zahra
+
+After saving the test:
+
+Automatically subtract 1 session from the patient's subscription.
+
+Update the remaining sessions.
+
+---
+
+9. PATIENT TEST HISTORY
+
+Each patient profile should show a history table:
+
+Date
+Weight
+Body Fat
+Muscle Mass
+BMI
+Operator
+Remaining Sessions
+Notes
+
+---
+
+10. PROGRESS CHARTS
+
+Inside the patient profile create charts showing progress over time:
+
+Weight evolution
+Body fat evolution
+Muscle mass evolution
+
+Use line charts to display data based on test dates.
+
+---
+
+11. INBODY DASHBOARD
+
+At the top of the InBody page create statistic cards showing:
+
+Total Patients
+Tests Today
+Tests This Month
+Active Subscriptions
+
+---
+
+12. PDF REPORT
+
+Add a button in the patient profile:
+
+Print InBody Report
+
+This should generate a printable PDF containing:
+
+Patient information
+Latest measurements
+History of tests
+Progress charts
+
+---
+
+13. DATABASE STRUCTURE
+
+Store data in the backend database using the following structure:
+
+Patients
+Subscriptions
+InBodyTests
+Preparations
+
+---
+
+14. NAVIGATION MENU
+
+Update the sidebar/navigation menu to include:
+
+Dashboard
+Préparations
+InBody
+
+---
+
+15. DESIGN
+
+Keep the same design as the existing dashboard.
+
+Use:
+
+* clean cards
+* modern tables
+* responsive forms
+* professional UI layout.
+
+The goal is to transform this application into a professional management system for the pharmacy and InBody body composition tests.
