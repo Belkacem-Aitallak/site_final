@@ -1,7 +1,7 @@
 import express, { type Express } from "express";
 import fs from "fs";
 import path from "path";
-import { fileURLToPath } from "url";
+fileURLToPath(import.meta.url)
 
 export function serveStatic(app: Express) {
   const __filename = fileURLToPath(import.meta.url);
