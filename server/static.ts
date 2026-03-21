@@ -1,3 +1,4 @@
+console.log("NEW VERSION LOADED");
 import express, { type Express } from "express";
 import fs from "fs";
 import path from "path";
