@@ -3,11 +3,11 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
-export function serveStatic(app: Express) {
-  const __filename = fileURLToPath(import.meta.url);
-  const __dirname = path.dirname(__filename);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-  const distPath = path.resolve(__dirname, "public");
+export function serveStatic(app: Express) {
+  const distPath = path.resolve(__dirname, "../public");
 
   if (!fs.existsSync(distPath)) {
     throw new Error(
@@ -17,7 +17,6 @@ export function serveStatic(app: Express) {
 
   app.use(express.static(distPath));
 
-  // fallback vers index.html
   app.use("/*", (_req, res) => {
     res.sendFile(path.resolve(distPath, "index.html"));
   });
