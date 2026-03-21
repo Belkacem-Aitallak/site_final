@@ -13,7 +13,7 @@ export function serveStatic(app: Express) {
     );
   }
 
-  app.use(express.static(distPath));
+ app.use(express.static(distPath));
 
 // fallback pour React / SPA
 app.use((req, res) => {
