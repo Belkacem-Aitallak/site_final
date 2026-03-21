@@ -15,7 +15,8 @@ export function serveStatic(app: Express) {
 
   app.use(express.static(distPath));
 
-  app.get("*", (_req, res) => {
-    res.sendFile(path.join(distPath, "index.html"));
-  });
+// fallback pour React / SPA
+app.use((req, res) => {
+  res.sendFile(path.resolve(distPath, "index.html"));
+});
 }
