@@ -3,7 +3,7 @@ import fs from "fs";
 import path from "path";
 
 export function serveStatic(app: Express) {
-  const distPath = path.join(process.cwd(), "public");
+  const distPath = path.join(process.cwd(), "dist");
 
   console.log("Serving static from:", distPath);
 
