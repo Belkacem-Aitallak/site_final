@@ -1,27 +1,42 @@
-import { orders, preparations, inbodyPatients, inbodyTests, type InsertOrder, type Order, type Preparation, type InsertPreparation, type InbodyPatient, type InsertInbodyPatient, type InbodyTest, type InsertInbodyTest } from "@shared/schema";
+import { db } from "./db";
+
+import {
+  orders,
+  preparations,
+  inbodyPatients,
+  inbodyTests,
+  type InsertOrder,
+  type Order,
+  type Preparation,
+  type InsertPreparation,
+  type InbodyPatient,
+  type InsertInbodyPatient,
+  type InbodyTest,
+  type InsertInbodyTest,
+} from "@shared/schema";
+
 import { eq, desc } from "drizzle-orm";
 
 export interface IStorage {
-  // Orders
   getOrders(status?: string): Promise<Order[]>;
   getOrder(id: number): Promise<Order | undefined>;
   createOrder(order: InsertOrder): Promise<Order>;
   updateOrder(id: number, updates: Partial<InsertOrder>): Promise<Order>;
   deleteOrder(id: number): Promise<void>;
-  // Preparations
+
   getPreparations(): Promise<Preparation[]>;
   getPreparation(id: number): Promise<Preparation | undefined>;
   createPreparation(prep: InsertPreparation): Promise<Preparation>;
   updatePreparation(id: number, updates: Partial<InsertPreparation>): Promise<Preparation>;
   deletePreparation(id: number): Promise<void>;
-  // InBody Patients
+
   getInbodyPatients(): Promise<InbodyPatient[]>;
   getInbodyPatient(id: number): Promise<InbodyPatient | undefined>;
   getInbodyPatientByPatientId(patientId: string): Promise<InbodyPatient | undefined>;
   createInbodyPatient(patient: InsertInbodyPatient): Promise<InbodyPatient>;
   updateInbodyPatient(id: number, updates: Partial<InsertInbodyPatient>): Promise<InbodyPatient>;
   deleteInbodyPatient(id: number): Promise<void>;
-  // InBody Tests
+
   getInbodyTests(patientId: number): Promise<InbodyTest[]>;
   getAllInbodyTests(): Promise<InbodyTest[]>;
   createInbodyTest(test: InsertInbodyTest): Promise<InbodyTest>;
@@ -29,11 +44,11 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
-    async getOrders(status?: string) {
-      return [];
-    }
+  async getOrders(): Promise<Order[]> {
+    return [];
+  }
 
-  async getOrder(id: number): Promise<Order | undefined> {
+  async getOrder(): Promise<Order | undefined> {
     return undefined;
   }
 
@@ -41,13 +56,11 @@ export class DatabaseStorage implements IStorage {
     return insertOrder as any;
   }
 
-  async updateOrder(id: number, updates: Partial<InsertOrder>): Promise<Order> {
+  async updateOrder(_id: number, updates: Partial<InsertOrder>): Promise<Order> {
     return updates as any;
   }
 
-  async deleteOrder(id: number): Promise<void> {
-    return;
-  }
+  async deleteOrder(): Promise<void> {}
 
   async getPreparations(): Promise<Preparation[]> {
     return await db.select().from(preparations).orderBy(desc(preparations.createdAt));
@@ -102,7 +115,11 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getInbodyTests(patientId: number): Promise<InbodyTest[]> {
-    return await db.select().from(inbodyTests).where(eq(inbodyTests.patientId, patientId)).orderBy(desc(inbodyTests.testDate));
+    return await db
+      .select()
+      .from(inbodyTests)
+      .where(eq(inbodyTests.patientId, patientId))
+      .orderBy(desc(inbodyTests.testDate));
   }
 
   async getAllInbodyTests(): Promise<InbodyTest[]> {
@@ -111,13 +128,16 @@ export class DatabaseStorage implements IStorage {
 
   async createInbodyTest(test: InsertInbodyTest): Promise<InbodyTest> {
     const [created] = await db.insert(inbodyTests).values(test).returning();
-    // Decrement remaining sessions for patient
+
     const [patient] = await db.select().from(inbodyPatients).where(eq(inbodyPatients.id, test.patientId));
+
     if (patient && patient.remainingSessions > 0) {
-      await db.update(inbodyPatients)
+      await db
+        .update(inbodyPatients)
         .set({ remainingSessions: patient.remainingSessions - 1 })
         .where(eq(inbodyPatients.id, test.patientId));
     }
+
     return created;
   }
 

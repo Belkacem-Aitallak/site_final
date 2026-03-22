@@ -11,3 +11,6 @@ export const connectDB = async () => {
     process.exit(1);
   }
 };
+
+// ✅ AJOUT IMPORTANT
+export const db = mongoose;
