@@ -1,3 +1,5 @@
+import { QueryClient, QueryFunction } from "@tanstack/react-query";
+
 const API_URL = "https://sitefinal-production-3d8c.up.railway.app";
 
 async function throwIfResNotOk(res: Response) {
@@ -44,3 +46,18 @@ export const getQueryFn: <T>(options: {
     await throwIfResNotOk(res);
     return await res.json();
   };
+
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      queryFn: getQueryFn({ on401: "throw" }),
+      refetchInterval: false,
+      refetchOnWindowFocus: false,
+      staleTime: Infinity,
+      retry: false,
+    },
+    mutations: {
+      retry: false,
+    },
+  },
+});
