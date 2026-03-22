@@ -79,8 +79,4 @@ app.use((req, res, next) => {
   httpServer.listen(port, "0.0.0.0", () => {
     log(`serving on port ${port}`);
   });
-<<<<<<< HEAD
-})();
-=======
-})();
->>>>>>> 8dde8cd4686a462276fc0aef5f87e533e5afc79e
+
