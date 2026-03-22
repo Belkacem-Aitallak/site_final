@@ -20,7 +20,12 @@ app.use(
     },
   }),
 );
+import cors from "cors";
 
+app.use(cors({
+  origin: "https://69bf51a459f45b4e7e18907a--effulgent-gaufre-970261.netlify.app",
+  credentials: true
+}));
 app.use(express.urlencoded({ extended: false }));
 
 export function log(message: string, source = "express") {
