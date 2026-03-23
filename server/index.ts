@@ -15,7 +15,7 @@ declare module "http" {
   }
 }
 
-// Middleware pour le JSON et le rawBody (pour Stripe ou autres webhooks)
+// Middleware pour le JSON
 app.use(
   express.json({
     verify: (req, _res, buf) => {
@@ -26,17 +26,12 @@ app.use(
 
 app.use(express.urlencoded({ extended: false }));
 
-// ✅ CONFIGURATION CORS CORRIGÉE
-// On autorise explicitement ton site Vercel et le localhost pour tes tests
+// ✅ CONFIGURATION CORS UNIQUE ET PROPRE
 app.use(
   cors({
-<<<<<<< HEAD
-    origin: "https://69bf51a459f45b4e7e18907a--effulgent-gaufre-970261.netlify.app",
-=======
     origin: ["https://site-final-alpha.vercel.app", "http://localhost:5173"],
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
->>>>>>> 3437860 (Correction de l'URL API et du CORS)
     credentials: true,
   }),
 );
@@ -48,59 +43,42 @@ export function log(message: string, source = "express") {
     second: "2-digit",
     hour12: true,
   });
-
   console.log(`${formattedTime} [${source}] ${message}`);
 }
 
-// Middleware de log pour suivre les requêtes dans Railway
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
-
-  const originalResJson = res.json;
-  res.json = function (bodyJson, ...args) {
-    return originalResJson.apply(res, [bodyJson, ...args]);
-  };
-
   res.on("finish", () => {
     const duration = Date.now() - start;
     if (path.startsWith("/api")) {
       log(`${req.method} ${path} ${res.statusCode} in ${duration}ms`);
     }
   });
-
   next();
 });
 
 (async () => {
   try {
-<<<<<<< HEAD
-    await connectDB(); // connexion DB
-=======
-    // 1. Connexion à la base de données MongoDB
+    // 1. Connexion MongoDB
     await connectDB();
     
-    // 2. Enregistrement des routes API
->>>>>>> 3437860 (Correction de l'URL API et du CORS)
+    // 2. Routes API
     await registerRoutes(httpServer, app);
 
-    // 3. Gestion globale des erreurs
+    // 3. Erreurs
     app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
       const status = err.status || err.statusCode || 500;
-      const message = err.message || "Internal Server Error";
-      console.error("Internal Server Error:", err);
-      if (res.headersSent) return next(err);
-      return res.status(status).json({ message });
+      console.error("Erreur serveur:", err);
+      res.status(status).json({ message: err.message || "Internal Server Error" });
     });
 
-    // 4. Lancement du serveur sur le port fourni par Railway
+    // 4. Port Railway
     const port = parseInt(process.env.PORT || "5000", 10);
-
     httpServer.listen(port, "0.0.0.0", () => {
       log(`serving on port ${port} - Backend Ready`);
     });
-
   } catch (err) {
-    console.error("❌ SERVER FAILED TO START:", err);
+    console.error("❌ LE SERVEUR N'A PAS PU DÉMARRER:", err);
   }
 })();
