@@ -1,79 +1,99 @@
 import type { Express } from "express";
 import type { Server } from "http";
 import { storage } from "./storage";
-import { z } from "zod";
-import {
-  insertOrderSchema,
-  insertPreparationSchema,
-  insertInbodyPatientSchema,
-  insertInbodyTestSchema,
-} from "@shared/schema";
 
 export async function registerRoutes(httpServer: Server, app: Express): Promise<Server> {
-  // ---- PATIENTS ----
-  app.get("/api/patients", async (_req, res) => {
-    const patients = await storage.getInbodyPatients();
-    res.json(patients);
-  });
 
-  app.post("/api/patients", async (req, res) => {
-    try {
-      const input = insertInbodyPatientSchema.parse(req.body);
-      const existing = await storage.getInbodyPatientByPatientId(input.patientId);
-      if (existing) return res.status(400).json({ message: "ID Patient déjà existant" });
-      const patient = await storage.createInbodyPatient(input);
-      res.status(201).json(patient);
-    } catch (err) {
-      if (err instanceof z.ZodError) return res.status(400).json({ message: err.errors[0].message });
-      res.status(500).json({ message: "Erreur lors de la création du patient" });
-    }
-  });
+  // ===== ORDERS =====
 
-  // ---- COMMANDES (ORDERS) ----
-  app.get("/api/orders", async (req, res) => {
-    const status = req.query.status as string | undefined;
-    const orders = await storage.getOrders(status);
-    res.json(orders);
+  app.get("/api/orders", async (_req, res) => {
+    const data = await storage.getOrders();
+    res.json(data);
   });
 
   app.post("/api/orders", async (req, res) => {
     try {
-      const input = insertOrderSchema.parse(req.body);
-      const order = await storage.createOrder(input);
-      res.status(201).json(order);
+      const b = req.body;
+
+      const order = await storage.createOrder({
+        patientName: b.patientName || b.name,
+        phoneNumber: b.phoneNumber || b.phone,
+        productName: b.productName || b.product,
+        status: "À commander",
+      });
+
+      res.json(order);
     } catch (err) {
-      if (err instanceof z.ZodError) return res.status(400).json({ message: err.errors[0].message });
-      res.status(500).json({ message: "Erreur lors de la création de la commande" });
+      console.error(err);
+      res.status(500).json({ message: "order error" });
     }
   });
 
-  // ---- PRÉPARATIONS ----
+  app.delete("/api/orders/:id", async (req, res) => {
+    await storage.deleteOrder(req.params.id);
+    res.sendStatus(204);
+  });
+
+  // ===== PREPARATIONS =====
+
   app.get("/api/preparations", async (_req, res) => {
-    const preps = await storage.getPreparations();
-    res.json(preps);
+    const data = await storage.getPreparations();
+    res.json(data);
   });
 
   app.post("/api/preparations", async (req, res) => {
     try {
-      const input = insertPreparationSchema.parse(req.body);
-      const prep = await storage.createPreparation(input);
-      res.status(201).json(prep);
+      const b = req.body;
+
+      const prep = await storage.createPreparation({
+        type: b.type || b.preparationType,
+        description: b.description,
+        preparedBy: b.preparedBy || b.user,
+        status: b.status || "En attente",
+        notes: b.notes || "",
+      });
+
+      res.json(prep);
     } catch (err) {
-      if (err instanceof z.ZodError) return res.status(400).json({ message: err.errors[0].message });
-      res.status(500).json({ message: "Erreur lors de l'ajout de la préparation" });
+      console.error(err);
+      res.status(500).json({ message: "prep error" });
     }
   });
 
-  // ---- INBODY TESTS ----
-  app.post("/api/inbody/tests", async (req, res) => {
+  app.delete("/api/preparations/:id", async (req, res) => {
+    await storage.deletePreparation(req.params.id);
+    res.sendStatus(204);
+  });
+
+  // ===== PATIENTS =====
+
+  app.get("/api/inbody/patients", async (_req, res) => {
+    const data = await storage.getInbodyPatients();
+    res.json(data);
+  });
+
+  app.post("/api/inbody/patients", async (req, res) => {
     try {
-      const input = insertInbodyTestSchema.parse(req.body);
-      const test = await storage.createInbodyTest(input);
-      res.status(201).json(test);
+      const b = req.body;
+
+      const patient = await storage.createInbodyPatient({
+        patientId: b.patientId,
+        name: b.name || b.fullName,
+        phone: b.phone,
+        email: b.email,
+        birthDate: b.birthDate,
+      });
+
+      res.json(patient);
     } catch (err) {
-      if (err instanceof z.ZodError) return res.status(400).json({ message: err.errors[0].message });
-      res.status(500).json({ message: "Erreur lors de l'enregistrement Inbody" });
+      console.error(err);
+      res.status(500).json({ message: "patient error" });
     }
+  });
+
+  app.delete("/api/inbody/patients/:id", async (req, res) => {
+    await storage.deleteInbodyPatient(req.params.id);
+    res.sendStatus(204);
   });
 
   return httpServer;
