@@ -67,29 +67,40 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
 
   // ===== PATIENTS =====
 
-  app.get("/api/inbody/patients", async (_req, res) => {
-    const data = await storage.getInbodyPatients();
-    res.json(data);
-  });
-
   app.post("/api/inbody/patients", async (req, res) => {
-    try {
-      const b = req.body;
+  try {
+    const b = req.body;
 
-      const patient = await storage.createInbodyPatient({
-        patientId: b.patientId,
-        name: b.name || b.fullName,
-        phone: b.phone,
-        email: b.email,
-        birthDate: b.birthDate,
-      });
+    // ✅ Debug (tu peux laisser)
+    console.log("BODY:", b);
 
-      res.json(patient);
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: "patient error" });
+    // ✅ Validation simple
+    if (!b.patientId || !(b.name || b.fullName)) {
+      return res.status(400).json({ message: "Missing required fields" });
     }
-  });
+
+    const patient = await storage.createInbodyPatient({
+      patientId: b.patientId,
+      name: b.name || b.fullName,
+
+      // ✅ FIX noms de champs
+      phoneNumber: b.phone ? b.phone.replace(/\s+/g, '') : null,
+      email: b.email || null,
+
+      // ✅ FIX date
+      dateOfBirth: b.birthDate ? new Date(b.birthDate).toISOString().split("T")[0] : null,
+    });
+
+    res.status(201).json(patient);
+
+  } catch (err) {
+    console.error("❌ PATIENT ERROR:", err);
+
+    res.status(500).json({
+      message: err.message, // 🔥 maintenant tu verras la vraie erreur
+    });
+  }
+});
 
   app.delete("/api/inbody/patients/:id", async (req, res) => {
     await storage.deleteInbodyPatient(req.params.id);
